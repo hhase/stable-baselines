@@ -1,6 +1,6 @@
 #from stable_baselines.a2c import A2C
 #from stable_baselines.acer import ACER
-from stable_baselines.acktr import ACKTR
+#from stable_baselines.acktr import ACKTR
 from stable_baselines.deepq import DQN
 from stable_baselines.her import HER
 from stable_baselines.ppo2 import PPO2
