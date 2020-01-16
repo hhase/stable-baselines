@@ -131,7 +131,7 @@ class FeedForwardPolicy(DQNPolicy):
             else:
                 q_out = action_scores
 
-        self.state_score = state_score if state_score else None
+        self.state_score = state_score
         self.q_values = q_out
         self._setup_init()
 
