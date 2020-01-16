@@ -3,7 +3,7 @@ import tensorflow.contrib.layers as tf_layers
 import numpy as np
 from gym.spaces import Discrete
 
-from stable_baselines.common.policies import BasePolicy, nature_cnn, register_policy
+from stable_baselines.common.policies import BasePolicy, custom_cnn, nature_cnn, register_policy
 
 
 class DQNPolicy(BasePolicy):
@@ -89,7 +89,7 @@ class FeedForwardPolicy(DQNPolicy):
     """
 
     def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, layers=None,
-                 cnn_extractor=nature_cnn, feature_extraction="cnn",
+                 cnn_extractor=custom_cnn, feature_extraction="cnn",
                  obs_phs=None, layer_norm=False, dueling=True, act_fun=tf.nn.relu, **kwargs):
         super(FeedForwardPolicy, self).__init__(sess, ob_space, ac_space, n_env, n_steps,
                                                 n_batch, dueling=dueling, reuse=reuse,
