@@ -131,11 +131,12 @@ class FeedForwardPolicy(DQNPolicy):
             else:
                 q_out = action_scores
 
+        self.state_score = state_score if state_score else None
         self.q_values = q_out
         self._setup_init()
 
     def step(self, obs, state=None, mask=None, deterministic=True):
-        q_values, actions_proba = self.sess.run([self.q_values, self.policy_proba], {self.obs_ph: obs})
+        q_values, actions_proba, state_score = self.sess.run([self.q_values, self.policy_proba, self.state_score], {self.obs_ph: obs})
         if deterministic:
             actions = np.argmax(q_values, axis=1)
         else:
@@ -146,7 +147,7 @@ class FeedForwardPolicy(DQNPolicy):
             for action_idx in range(len(obs)):
                 actions[action_idx] = np.random.choice(self.n_actions, p=actions_proba[action_idx])
 
-        return actions, q_values, None
+        return actions, q_values, state_score
 
     def proba_step(self, obs, state=None, mask=None):
         return self.sess.run(self.policy_proba, {self.obs_ph: obs})

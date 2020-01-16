@@ -307,12 +307,12 @@ class DQN(OffPolicyRLModel):
 
         observation = observation.reshape((-1,) + self.observation_space.shape)
         with self.sess.as_default():
-            actions, q_vals, _ = self.step_model.step(observation, deterministic=deterministic)
+            actions, q_vals, state_vals = self.step_model.step(observation, deterministic=deterministic)
 
         if not vectorized_env:
             actions = actions[0]
 
-        return actions, q_vals
+        return actions, q_vals, state_vals
 
     def action_probability(self, observation, state=None, mask=None, actions=None, logp=False):
         observation = np.array(observation)
