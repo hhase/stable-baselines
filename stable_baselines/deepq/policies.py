@@ -24,10 +24,10 @@ class DQNPolicy(BasePolicy):
     """
 
     def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, scale=False,
-                 obs_phs=None, dueling=True):
+                 obs_phs=None, dueling=True, action_history=None):
         # DQN policies need an override for the obs placeholder, due to the architecture of the code
         super(DQNPolicy, self).__init__(sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=reuse, scale=scale,
-                                        obs_phs=obs_phs)
+                                        obs_phs=obs_phs, action_history=action_history)
         assert isinstance(ac_space, Discrete), "Error: the action space for DQN must be of type gym.spaces.Discrete"
         self.n_actions = ac_space.n
         self.value_fn = None
@@ -90,21 +90,33 @@ class FeedForwardPolicy(DQNPolicy):
 
     def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, layers=None,
                  cnn_extractor=custom_cnn, feature_extraction="cnn",
-                 obs_phs=None, layer_norm=False, dueling=True, act_fun=tf.nn.relu, **kwargs):
+                 obs_phs=None, layer_norm=False, action_history=None, dueling=True, act_fun=tf.nn.relu, **kwargs):
+
         super(FeedForwardPolicy, self).__init__(sess, ob_space, ac_space, n_env, n_steps,
                                                 n_batch, dueling=dueling, reuse=reuse,
-                                                scale=(feature_extraction == "cnn"), obs_phs=obs_phs)
+                                                scale=(feature_extraction == "cnn"), obs_phs=obs_phs, action_history=action_history)
 
         self._kwargs_check(feature_extraction, kwargs)
 
         if layers is None:
             layers = [64, 64]
 
+        if action_history:
+            self.previous_actions = np.array([])
+
+        # ToDo - include placeholder for one-hot encoded previous actions in fully connected layer. Still to define if before or after the state score is generated!
+
         with tf.variable_scope("model", reuse=reuse):
             with tf.variable_scope("action_value"):
                 if feature_extraction == "cnn":
                     extracted_features = cnn_extractor(self.processed_obs, **kwargs)
+                    if action_history:
+                        extracted_features = tf.concat([extracted_features, self.previous_actions], axis=0)
                     action_out = extracted_features
+                    #ToDo - Add placeholder if flag
+                    #Todo - if placeholder not None: tf.concat(tensor1, tensor2)
+                    #action_out = tf.concat(extracted_features, action_history)
+                    #tf.placeholder_with_default(0, shape= , name='prev_actions')
                 else:
                     extracted_features = tf.layers.flatten(self.processed_obs)
                     action_out = extracted_features
@@ -141,7 +153,6 @@ class FeedForwardPolicy(DQNPolicy):
             actions = np.argmax(q_values, axis=1)
         else:
             # Unefficient sampling
-            # TODO: replace the loop
             # maybe with Gumbel-max trick ? (http://amid.fish/humble-gumbel)
             actions = np.zeros((len(obs),), dtype=np.int64)
             for action_idx in range(len(obs)):

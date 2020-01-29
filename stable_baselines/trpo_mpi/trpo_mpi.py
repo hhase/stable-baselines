@@ -296,7 +296,6 @@ class TRPO(ActorCriticRLModel):
                     self.expert_dataset.init_dataloader(batchsize)
 
                     #  Stats not used for now
-                    # TODO: replace with normal tb logging
                     #  g_loss_stats = Stats(loss_names)
                     #  d_loss_stats = Stats(reward_giver.loss_name)
                     #  ep_stats = Stats(["True_rewards", "Rewards", "Episode_length"])

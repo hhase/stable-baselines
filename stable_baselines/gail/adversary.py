@@ -45,7 +45,6 @@ class TransitionClassifier(object):
         :param scope: (str) tensorflow variable scope
         :param normalize: (bool) Whether to normalize the reward or not
         """
-        # TODO: support images properly (using a CNN)
         self.scope = scope
         self.observation_shape = observation_space.shape
         self.actions_shape = action_space.shape

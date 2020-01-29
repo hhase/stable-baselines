@@ -131,7 +131,7 @@ class BasePolicy(ABC):
     recurrent = False
 
     def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, scale=False,
-                 obs_phs=None, add_action_ph=False):
+                 obs_phs=None, add_action_ph=False, action_history=None):
         self.n_env = n_env
         self.n_steps = n_steps
         self.n_batch = n_batch
@@ -139,7 +139,7 @@ class BasePolicy(ABC):
             if obs_phs is None:
                 self._obs_ph, self._processed_obs = observation_input(ob_space, n_batch, scale=scale)
             else:
-                self._obs_ph, self._processed_obs = obs_phs
+                self._obs_ph, self._processed_obs = obs_phs     #ToDo - adapt placeholders
 
             self._action_ph = None
             if add_action_ph:
@@ -516,7 +516,6 @@ class LstmPolicy(RecurrentActorCriticPolicy):
                     raise ValueError("The net_arch parameter must contain at least one occurrence of 'lstm'!")
 
                 self._value_fn = linear(latent_value, 'vf', 1)
-                # TODO: why not init_scale = 0.001 here like in the feedforward
                 self._proba_distribution, self._policy, self.q_value = \
                     self.pdtype.proba_distribution_from_latent(latent_policy, latent_value)
         self._setup_init()

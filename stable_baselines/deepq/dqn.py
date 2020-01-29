@@ -61,9 +61,8 @@ class DQN(OffPolicyRLModel):
                  prioritized_replay_alpha=0.6, prioritized_replay_beta0=0.4, prioritized_replay_beta_iters=None,
                  prioritized_replay_eps=1e-6, param_noise=False,
                  n_cpu_tf_sess=None, verbose=0, tensorboard_log=None,
-                 _init_setup_model=True, policy_kwargs=None, full_tensorboard_log=False, seed=None):
+                 _init_setup_model=True, policy_kwargs=None, full_tensorboard_log=False, seed=None, action_history=None):
 
-        # TODO: replay_buffer refactoring
         super(DQN, self).__init__(policy=policy, env=env, replay_buffer=None, verbose=verbose, policy_base=DQNPolicy,
                                   requires_vec_env=False, policy_kwargs=policy_kwargs, seed=seed, n_cpu_tf_sess=n_cpu_tf_sess)
 
@@ -129,8 +128,8 @@ class DQN(OffPolicyRLModel):
 
                 optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
 
-                self.act, self._train_step, self.update_target, self.step_model = build_train(
-                    q_func=partial(self.policy, **self.policy_kwargs),
+                self.act, self._train_step, self.update_target, self.step_model = build_train(              #CheckThis - creation of self.act method
+                    q_func=partial(self.policy, **self.policy_kwargs),                                      #CheckThis - feed policy_kwargs into the policy
                     ob_space=self.observation_space,
                     ac_space=self.action_space,
                     optimizer=optimizer,
@@ -139,7 +138,7 @@ class DQN(OffPolicyRLModel):
                     param_noise=self.param_noise,
                     sess=self.sess,
                     full_tensorboard_log=self.full_tensorboard_log,
-                    double_q=self.double_q
+                    double_q=self.double_q                                                                  #CheckThis - action history weights not affected by DDQN
                 )
                 self.proba_step = self.step_model.proba_step
                 self.params = tf_util.get_trainable_vars("deepq")
@@ -184,7 +183,7 @@ class DQN(OffPolicyRLModel):
 
             episode_rewards = [0.0]
             episode_successes = []
-            obs = self.env.reset()
+            obs = self.env.reset()                                                                  #CheckThis - Inputs can be split here
             reset = True
 
             for _ in range(total_timesteps):
@@ -211,12 +210,15 @@ class DQN(OffPolicyRLModel):
                     kwargs['update_param_noise_threshold'] = update_param_noise_threshold
                     kwargs['update_param_noise_scale'] = True
                 with self.sess.as_default():
-                    action = self.act(np.array(obs)[None], update_eps=update_eps, **kwargs)[0]
+                    frame, action_history = obs                                                     #Added this line
+                #action = self.act(np.array(obs)[None], update_eps=update_eps, **kwargs)[0]          # CheckThis - Act step while training
+                self.policy.previous_actions = action_history
+                action = self.act(np.array(frame)[None], update_eps=update_eps, **kwargs)[0]
                 env_action = action
                 reset = False
-                new_obs, rew, done, info = self.env.step(env_action)
+                new_obs, rew, done, info = self.env.step(env_action)                                #CheckThis - new_obs formatting for replay memory
                 # Store transition in the replay buffer.
-                self.replay_buffer.add(obs, action, rew, new_obs, float(done))
+                self.replay_buffer.add(obs, action, rew, new_obs, float(done)) #
                 obs = new_obs
 
                 if writer is not None:

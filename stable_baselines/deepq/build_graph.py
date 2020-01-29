@@ -138,8 +138,8 @@ def build_act(q_func, ob_space, ac_space, stochastic_ph, update_eps_ph, sess):
     """
     eps = tf.get_variable("eps", (), initializer=tf.constant_initializer(0))
 
-    policy = q_func(sess, ob_space, ac_space, 1, 1, None)
-    obs_phs = (policy.obs_ph, policy.processed_obs)
+    policy = q_func(sess, ob_space, ac_space, 1, 1, None)                       #CheckThis - ac_space has information about nr° actions | Policy receives (sess, ob_space, ac_space, n_env, n_steps, n_batch)
+    obs_phs = (policy.obs_ph, policy.processed_obs)                             #CheckThis - Observation placeholders are transfered from the policy to the model
     deterministic_actions = tf.argmax(policy.q_values, axis=1)
 
     batch_size = tf.shape(policy.obs_ph)[0]
@@ -359,12 +359,15 @@ def build_train(q_func, ob_space, ac_space, optimizer, sess, grad_norm_clipping=
         stochastic_ph = tf.placeholder(tf.bool, (), name="stochastic")
         update_eps_ph = tf.placeholder(tf.float32, (), name="update_eps")
 
+    #ToDo - add action_history flag to handle obs_phs differently
+    #env.num_actions * env.mem_size
+
     with tf.variable_scope(scope, reuse=reuse):
         if param_noise:
             act_f, obs_phs = build_act_with_param_noise(q_func, ob_space, ac_space, stochastic_ph, update_eps_ph, sess,
                                                         param_noise_filter_func=param_noise_filter_func)
         else:
-            act_f, obs_phs = build_act(q_func, ob_space, ac_space, stochastic_ph, update_eps_ph, sess)
+            act_f, obs_phs = build_act(q_func, ob_space, ac_space, stochastic_ph, update_eps_ph, sess)          #CheckThis - obervation placeholders after act method is built
 
         # q network evaluation
         with tf.variable_scope("step_model", reuse=True, custom_getter=tf_util.outer_scope_getter("step_model")):
