@@ -111,7 +111,7 @@ class FeedForwardPolicy(DQNPolicy):
                 if feature_extraction == "cnn":
                     extracted_features = cnn_extractor(self.processed_obs, **kwargs)
                     if action_history:
-                        extracted_features = tf.concat([extracted_features, self.previous_actions], axis=0)
+                        extracted_features = tf.concat([extracted_features, self.previous_actions], axis=1)
                     action_out = extracted_features
                     #ToDo - Add placeholder if flag
                     #Todo - if placeholder not None: tf.concat(tensor1, tensor2)
