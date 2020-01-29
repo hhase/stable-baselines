@@ -102,7 +102,7 @@ class FeedForwardPolicy(DQNPolicy):
             layers = [64, 64]
 
         if action_history:
-            self.previous_actions = np.array([])
+            self.previous_actions = np.array([0])
 
         # ToDo - include placeholder for one-hot encoded previous actions in fully connected layer. Still to define if before or after the state score is generated!
 
