@@ -6,6 +6,7 @@ from gym.spaces import Discrete
 from stable_baselines.common.policies import BasePolicy, custom_cnn, nature_cnn, register_policy
 
 
+
 class DQNPolicy(BasePolicy):
     """
     Policy object that implements a DQN policy
