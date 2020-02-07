@@ -276,8 +276,7 @@ class DQN(OffPolicyRLModel):
                         assert isinstance(self.replay_buffer, PrioritizedReplayBuffer)
                         self.replay_buffer.update_priorities(batch_idxes, new_priorities)
 
-                if can_sample and self.num_timesteps > self.learning_starts and \
-                        self.num_timesteps % self.target_network_update_freq == 0:
+                if can_sample and self.num_timesteps > self.learning_starts and self.num_timesteps % self.target_network_update_freq == 0:
                     # Update target network periodically.
                     self.update_target(sess=self.sess)
 
