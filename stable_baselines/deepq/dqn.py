@@ -341,6 +341,11 @@ class DQN(OffPolicyRLModel):
     def get_parameter_list(self):
         return self.params
 
+    def simple_save(self, save_path):
+        sess =self.sess
+        saver = tf.train.Saver()
+        saver.save(sess, save_path)
+
     def save(self, save_path, cloudpickle=False):
         # params
         data = {
@@ -371,5 +376,5 @@ class DQN(OffPolicyRLModel):
         }
 
         params_to_save = self.get_parameters()
-
+        print(params_to_save)
         self._save_to_file(save_path, data=data, params=params_to_save, cloudpickle=cloudpickle)
