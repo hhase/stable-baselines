@@ -298,7 +298,6 @@ class DQN(OffPolicyRLModel):
 
                 self.num_timesteps += 1
 
-        self.update_target(sess=self.sess) #CheckThis - Delete this line
 
         return self
 
@@ -344,6 +343,9 @@ class DQN(OffPolicyRLModel):
         return self.params
 
     def save(self, save_path, cloudpickle=False):
+
+        self.update_target(sess=self.sess) #CheckThis - Delete this line
+
         # params
         data = {
             "double_q": self.double_q,
