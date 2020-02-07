@@ -298,6 +298,8 @@ class DQN(OffPolicyRLModel):
 
                 self.num_timesteps += 1
 
+        self.update_target(sess=self.sess) #CheckThis - Delete this line
+
         return self
 
     def predict(self, observation, state=None, mask=None, deterministic=True):
