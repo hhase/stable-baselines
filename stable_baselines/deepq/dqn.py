@@ -344,7 +344,7 @@ class DQN(OffPolicyRLModel):
 
     def save(self, save_path, cloudpickle=False):
 
-        self.update_target(sess=self.sess) #CheckThis - Delete this line
+        #self.update_target(sess=self.sess) #CheckThis - Delete this line
 
         # params
         data = {
